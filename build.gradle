@@ -1,0 +1,54 @@
+plugins {
+    id 'com.github.ben-manes.versions' version '0.17.0' apply false
+}
+
+subprojects {
+    afterEvaluate {
+        repositories {
+            jcenter()
+            maven {
+                url mavenRepoUrl
+                credentials {
+                    username mavenRepoUser
+                    password mavenRepoPass
+                }
+            }
+        }
+
+        plugins.withType(DistributionPlugin) {
+            distributions {
+                main {
+                    baseName = jarName
+                    contents {
+                        from bootJar
+                    }
+                }
+            }
+        }
+
+        plugins.withType(MavenPublishPlugin) {
+            publishing {
+                publications {
+                    maven(MavenPublication) {
+                        artifactId jarName
+                        from components.java
+                    }
+                }
+                repositories {
+                    maven {
+                        credentials {
+                            username mavenRepoUser
+                            password mavenRepoPass
+                        }
+
+                        if (project.version.endsWith('-SNAPSHOT')) {
+                            url mavenRepoDevUrl
+                        } else {
+                            url mavenRepoUrl
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

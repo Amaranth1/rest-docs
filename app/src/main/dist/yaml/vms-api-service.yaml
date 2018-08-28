@@ -1,0 +1,822 @@
+---
+swagger: "2.0"
+info:
+  description: VIT VMS API Gateway
+  version: 1.0.0
+  title: VMS API Gateway
+  termsOfService: http://ncs.com.sg/terms/
+  contact:
+    email: juichung.hsu@ncs.com.sg
+host: localhost
+basePath: /api
+tags:
+- name: model
+  description: models that relates to devices VMS supports
+- name: device
+  description: Everything about device
+- name: stream
+  description: Access to streams
+- name: event
+  description: Operations about events
+- name: system
+  description: System related information and operation
+schemes:
+- http
+paths:
+  /models:
+    get:
+      tags:
+      - model
+      summary: list models that VMS supports, the model type will be used for device API
+      description: ""
+      operationId: listModels
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        200:
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/DeviceModel'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  /devices:
+    get:
+      tags:
+      - device
+      summary: List of devices in VMS
+      description: ""
+      operationId: listDevices
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        200:
+          description: Successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Device'
+        default:
+          description: Unexpceted error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+    post:
+      tags:
+      - device
+      summary: Add a new device to VMS
+      description: The URI can be various value, for example, it could be host:port (192.168.1.100:80), or rtsp://192.168.1.102:554/stream1, the actual URI should depend on device model
+      operationId: addDevice
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: Device object that needs to be added to
+        required: true
+        schema:
+          $ref: '#/definitions/DeviceUpdate'
+      responses:
+        200:
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/DeviceUpdateResponse'
+        400:
+          description: Invalid input
+        default:
+          description: Unexpceted error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  /devices/{deviceId}:
+    get:
+      tags:
+      - device
+      summary: Find device by ID
+      description: Returns a single device
+      operationId: getDeviceById
+      produces:
+      - application/json
+      parameters:
+      - name: deviceId
+        in: path
+        description: ID of device to return
+        required: true
+        type: string
+      responses:
+        200:
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/Device'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Device not found
+        default:
+          description: Unexpceted error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+    put:
+      tags:
+      - device
+      summary: Update an existing device
+      description: ""
+      operationId: updateDevice
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: deviceId
+        in: path
+        description: ID of device to return
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: Device object that needs to be updated
+        required: true
+        schema:
+          $ref: '#/definitions/DeviceUpdate'
+      responses:
+        200:
+          description: Successful operation
+        400:
+          description: Invalid input supplied
+        404:
+          description: Device not found
+        default:
+          description: Unexpceted error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+    delete:
+      tags:
+      - device
+      summary: Delete a device
+      description: ""
+      operationId: deleteDevice
+      produces:
+      - application/json
+      parameters:
+      - name: deviceId
+        in: path
+        description: device id to delete
+        required: true
+        type: string
+      responses:
+        200:
+          description: Successful operation
+        400:
+          description: Invalid input supplied
+        404:
+          description: Device not found
+        default:
+          description: Unexpceted error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  /devices/{deviceId}/channels:
+    get:
+      tags:
+      - device
+      summary: Get channel details of the device
+      description: ""
+      operationId: deviceChannels
+      produces:
+      - application/json
+      parameters:
+      - name: deviceId
+        in: path
+        description: Device id to retrieve
+        required: true
+        type: string
+      responses:
+        200:
+          description: Sucessful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/DeviceChannel'
+        404:
+          description: Device not found
+        default:
+          description: Unexpected Error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  /devices/{deviceId}/channels/{channelId}/options:
+    get:
+      tags:
+      - device
+      summary: Get current channel options
+      description: ""
+      operationId: channelOptions
+      produces:
+      - application/json
+      parameters:
+      - name: deviceId
+        in: path
+        description: Device id to retrieve
+        required: true
+        type: string
+      - name: channelId
+        in: path
+        description: Device channel id to retrieve
+        required: true
+        type: string
+      responses:
+        200:
+          description: Sucessful operation
+          schema:
+            $ref: '#/definitions/DeviceChannelOptions'
+        404:
+          description: Device/channel not found
+        default:
+          description: Unexpected Error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+    put:
+      tags:
+      - device
+      summary: Change the channel options
+      description: ""
+      operationId: changeChannelOptions
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: deviceId
+        in: path
+        description: Device id to retrieve
+        required: true
+        type: string
+      - name: channelId
+        in: path
+        description: Device channel id to retrieve
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: the options to change
+        required: true
+        schema:
+          $ref: '#/definitions/DeviceChannelOptions'
+      responses:
+        200:
+          description: Sucessful operation
+        404:
+          description: Device not found
+        default:
+          description: Unexpected Error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  /devices/{deviceId}/current:
+    get:
+      tags:
+      - device
+      summary: Get the device current details
+      description: ""
+      operationId: deviceStatus
+      produces:
+      - application/json
+      parameters:
+      - name: deviceId
+        in: path
+        description: Device id to retrieve
+        required: true
+        type: string
+      responses:
+        200:
+          description: Sucessful operation
+          schema:
+            $ref: '#/definitions/DeviceCurrent'
+        404:
+          description: Device not found
+        default:
+          description: Unexpected Error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  /streams/live:
+    post:
+      tags:
+      - stream
+      summary: Request a live stream
+      description: ""
+      operationId: beginLiveStream
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: the live stream request object
+        required: true
+        schema:
+          $ref: '#/definitions/StreamRequest'
+      responses:
+        200:
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/StreamResponse'
+        400:
+          description: Validation exception
+        404:
+          description: Device not found
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  /streams/playback:
+    post:
+      tags:
+      - stream
+      summary: Request a recorded stream
+      description: ""
+      operationId: beginPlaybackStream
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: the stream playback request object
+        required: true
+        schema:
+          $ref: '#/definitions/StreamPlaybackRequest'
+      responses:
+        200:
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/StreamResponse'
+        400:
+          description: Validation exception
+        404:
+          description: Device not found
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  /streams/{sessionId}:
+    put:
+      tags:
+      - stream
+      summary: keep the session alive to avoid expiry
+      description: ""
+      operationId: keepaliveStream
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: sessionId
+        in: path
+        description: the existing session id
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: keepalive stream object
+        required: true
+        schema:
+          $ref: '#/definitions/StreamKeepalive'
+      responses:
+        200:
+          description: Successful operation
+        404:
+          description: Session not found
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+    delete:
+      tags:
+      - stream
+      summary: end an existing session
+      description: ""
+      operationId: endStream
+      produces:
+      - application/json
+      parameters:
+      - name: sessionId
+        in: path
+        description: the existing session id
+        required: true
+        type: string
+      responses:
+        200:
+          description: Successful operation
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  /events/rt:
+    post:
+      tags:
+      - event
+      summary: request a realtime event listener session
+      description: "The event type has few main categories, which are\n* device-operation\n\
+        -- device-operation-added\n-- device-operation-updated \n-- device-operation-deleted\n\
+        * device-status\n-- device-status-{DeviceStatus}\n"
+      operationId: requestEvent
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        description: the type of events that will be subscribed in this connection, this API is also used for websocket
+        required: true
+        schema:
+          $ref: '#/definitions/EventRequest'
+      responses:
+        200:
+          description: The temporarily session has been created, use the session id to retrieve events
+          schema:
+            $ref: '#/definitions/inline_response_200'
+        400:
+          description: Invalid request
+        405:
+          description: Some of types of events not available, the unrecognized types are returned
+          schema:
+            type: array
+            items:
+              type: string
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  /events/rt/{session}:
+    get:
+      tags:
+      - event
+      summary: retrieve events
+      operationId: retrieveEvents
+      produces:
+      - application/json
+      parameters:
+      - name: session
+        in: path
+        description: the session returned by POST /events
+        required: true
+        type: string
+      responses:
+        200:
+          description: An event returned
+          schema:
+            $ref: '#/definitions/EventObject'
+        404:
+          description: The session not found
+        default:
+          description: Unexpected Error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+  /system/status:
+    get:
+      tags:
+      - system
+      summary: get system status
+      description: ""
+      operationId: systemStatus
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        200:
+          description: Successful operation
+          schema:
+            $ref: '#/definitions/SystemStatus'
+        503:
+          description: Service unavailable
+        default:
+          description: Unexpected Error
+          schema:
+            $ref: '#/definitions/ApiResponse'
+definitions:
+  AdditionalValues:
+    type: object
+    additionalProperties:
+      type: object
+      properties: {}
+  Capabilities:
+    type: array
+    items:
+      type: string
+      enum:
+      - live-video
+      - gps
+      - nvr
+      - ipc
+      - vms
+      - ptz
+      - led
+      - sensor
+      - snapshot
+      - notification
+  DeviceModel:
+    required:
+    - modelType
+    properties:
+      modelType:
+        type: string
+      description:
+        type: string
+      capabilities:
+        $ref: '#/definitions/Capabilities'
+    example:
+      capabilities: ""
+      description: description
+      modelType: modelType
+  DeviceModels:
+    type: array
+    items:
+      $ref: '#/definitions/DeviceModel'
+  Device:
+    required:
+    - id
+    - modelType
+    - name
+    - uri
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      uri:
+        type: string
+      key:
+        type: string
+      username:
+        type: string
+      modelType:
+        type: string
+      additional:
+        $ref: '#/definitions/DeviceAdditional'
+    example:
+      additional: {}
+      name: name
+      id: id
+      modelType: modelType
+      uri: uri
+      key: key
+      username: username
+  DeviceUpdate:
+    required:
+    - modelType
+    - name
+    - uri
+    properties:
+      name:
+        type: string
+      uri:
+        type: string
+      key:
+        type: string
+      username:
+        type: string
+      password:
+        type: string
+        format: password
+      modelType:
+        type: string
+      additional:
+        $ref: '#/definitions/DeviceAdditional'
+    example:
+      password: password
+      additional: {}
+      name: name
+      modelType: modelType
+      uri: uri
+      key: key
+      username: username
+  DeviceAdditional:
+    type: object
+    additionalProperties:
+      type: object
+      properties: {}
+  DeviceChannelStatus:
+    type: array
+    items:
+      type: string
+      enum:
+      - ok
+      - unavailable
+  DeviceChannel:
+    required:
+    - capabilities
+    - id
+    - status
+    properties:
+      id:
+        type: string
+      capabilities:
+        $ref: '#/definitions/Capabilities'
+      status:
+        type: string
+      additional:
+        $ref: '#/definitions/AdditionalValues'
+    example:
+      capabilities: ""
+      additional: {}
+      id: id
+      status: status
+  DeviceChannelOptions:
+    properties:
+      recording:
+        type: boolean
+        default: false
+    example:
+      recording: false
+  AMTKDeviceChannel:
+    allOf:
+    - $ref: '#/definitions/DeviceChannel'
+    - type: object
+      properties:
+        profiles:
+          type: array
+          items:
+            type: string
+      additionalProperties:
+        type: object
+        properties: {}
+  DeviceStatus:
+    type: string
+  DeviceCurrent:
+    type: object
+    required:
+    - status
+    properties:
+      status:
+        $ref: '#/definitions/DeviceStatus'
+    example:
+      status: {}
+    additionalProperties:
+      type: string
+  DeviceUpdateResponse:
+    required:
+    - id
+    - modelType
+    properties:
+      id:
+        type: string
+      modelType:
+        type: string
+    example:
+      id: id
+      modelType: modelType
+  StreamType:
+    type: string
+  StreamRequest:
+    required:
+    - channelId
+    - deviceId
+    - ttl
+    - type
+    properties:
+      ttl:
+        type: integer
+        format: int64
+      type:
+        type: string
+      allowedIPs:
+        type: array
+        items:
+          type: string
+      deviceId:
+        type: string
+      channelId:
+        type: string
+      options:
+        $ref: '#/definitions/StreamOptions'
+    example:
+      allowedIPs:
+      - allowedIPs
+      - allowedIPs
+      options: {}
+      type: type
+      ttl: 0
+      deviceId: deviceId
+      channelId: channelId
+  StreamPlaybackRequest:
+    allOf:
+    - $ref: '#/definitions/StreamRequest'
+    - type: object
+      properties:
+        from:
+          type: number
+          format: int64
+        to:
+          type: number
+          format: int64
+  StreamOptions:
+    type: object
+    additionalProperties:
+      type: object
+      properties: {}
+  StreamKeepalive:
+    properties:
+      ttl:
+        type: integer
+        format: int64
+      allowedIPs:
+        type: array
+        items:
+          type: string
+    example:
+      allowedIPs:
+      - allowedIPs
+      - allowedIPs
+      ttl: 0
+  StreamResponse:
+    properties:
+      sessionId:
+        type: string
+      urls:
+        type: array
+        items:
+          type: string
+      expiry:
+        type: number
+        format: int64
+    example:
+      urls:
+      - urls
+      - urls
+      sessionId: sessionId
+      expiry: 0.80082819046101150206595775671303272247314453125
+  EventType:
+    type: array
+    items:
+      type: string
+      enum:
+      - device-operation
+      - device-operation-added
+      - device-operation-updated
+      - device-operation-deleted
+      - device-operation-status
+      - device-status-{DeviceStatus}
+  EventRequest:
+    required:
+    - type
+    properties:
+      deviceId:
+        type: string
+      type:
+        $ref: '#/definitions/EventType'
+    example:
+      type: ""
+      deviceId: deviceId
+  EventObject:
+    required:
+    - id
+    - time
+    - type
+    properties:
+      id:
+        type: string
+      time:
+        type: number
+        format: int64
+      type:
+        type: string
+      payload:
+        type: string
+    example:
+      payload: payload
+      id: id
+      time: 0.80082819046101150206595775671303272247314453125
+      type: type
+  SystemStatus:
+    required:
+    - uptime
+    properties:
+      uptime:
+        type: number
+        format: int64
+    example:
+      uptime: 0.80082819046101150206595775671303272247314453125
+  ApiResponse:
+    type: object
+    required:
+    - code
+    - type
+    properties:
+      code:
+        type: integer
+        format: int32
+      type:
+        type: string
+      message:
+        type: string
+  inline_response_200:
+    properties:
+      session:
+        type: string
+    example:
+      session: session

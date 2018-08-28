@@ -1,0 +1,1067 @@
+swagger: "2.0"
+
+info:
+  description: API References for VAP Device Service
+  version: 1.0.0
+  title: VAP Device Service API References
+
+host: "localhost:25040"
+
+basePath: "/"
+
+schemes:
+- http
+- https
+
+tags:
+- name: provider
+  description: Provider Service APIs
+- name: device
+  description: Device Service APIs
+- name: device-assign
+  description: User Device Assignment Service APIs
+- name: stream
+  description: Stream Service APIs
+
+paths:
+  /providers:
+    get:
+      tags:
+      - provider
+      summary: List providers information
+      description: List providers information
+      responses:
+        200:
+          description: OK
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Provider"
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /providers/{provider-client-id}:
+    get:
+      tags:
+      - provider
+      summary: Get particular provider information
+      description: Get particular providers information
+      parameters:
+      - name: provider-client-id
+        in: path
+        description: provider client id
+        type: string
+        required: true
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Provider"
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /devices:
+    get:
+      tags:
+      - device
+      summary: List authorized provider's devices for particular user
+      description: List authorized provider's devices for particular user, ADMIN role level can list full devices
+      parameters:
+      - name: x-user-id
+        in: header
+        description: caller user id
+        required: true
+        type: string
+      - name: x-role-level
+        in: header
+        description: caller user's role level (ADMIN/USER)
+        required: true
+        type: string
+      - name: provider-client-id
+        in: query
+        description: target provider client id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Device"
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+    post:
+      tags:
+        - device
+      summary: Add new device to provider
+      description: Add new device to provider
+      parameters:
+      - name: x-user-id
+        in: header
+        description: caller user id
+        required: true
+        type: string
+      - name: x-role-level
+        in: header
+        description: caller user's role level (ADMIN/USER)
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: device object
+        required: true
+        schema:
+          $ref: "#/definitions/DeviceOperation"
+      responses:
+        200:
+          description: OK return device id
+          schema:
+            type: string
+            example: 001
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /devices/{device-id}:
+    get:
+      tags:
+        - device
+      summary: Get particular device by authorized user
+      description: Get particular device by authorized user, ADMIN role level can list full devices
+      parameters:
+      - name: x-user-id
+        in: header
+        description: caller user id
+        required: true
+        type: string
+      - name: x-role-level
+        in: header
+        description: caller user's role level (ADMIN/USER)
+        required: true
+        type: string
+      - name: provider-client-id
+        in: query
+        description: target provider client id
+        required: true
+        type: string
+      - name: device-id
+        in: path
+        description: target device id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Device"
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+    put:
+      tags:
+        - device
+      summary: Update particular device by authorized user
+      description: Update particular device by authorized user, ADMIN role level can list full devices
+      parameters:
+      - name: x-user-id
+        in: header
+        description: caller user id
+        required: true
+        type: string
+      - name: x-role-level
+        in: header
+        description: caller user's role level (ADMIN/USER)
+        required: true
+        type: string
+      - name: device-id
+        in: path
+        description: target device id
+        required: true
+        type: string
+      - in: body
+        name: body
+        description: device object
+        required: true
+        schema:
+          $ref: "#/definitions/DeviceOperation"
+      responses:
+        200:
+          description: OK
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+    delete:
+      tags:
+        - device
+      summary: Delete particular device by authorized user
+      description: Delete particular device by authorized user, ADMIN role level have full devices permissions
+      parameters:
+      - name: x-user-id
+        in: header
+        description: caller user id
+        required: true
+        type: string
+      - name: x-role-level
+        in: header
+        description: caller user's role level (ADMIN/USER)
+        required: true
+        type: string
+      - name: provider-client-id
+        in: query
+        description: target provider client id
+        required: true
+        type: string
+      - name: device-id
+        in: path
+        description: target device id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /devices/{device-id}/channels/{channel-id}:
+    get:
+      tags:
+        - device
+      summary: Get particular device's channel by authorized user
+      description: Get particular device's channel by authorized user, ADMIN role level can list full devices
+      parameters:
+      - name: x-user-id
+        in: header
+        description: caller user id
+        required: true
+        type: string
+      - name: x-role-level
+        in: header
+        description: caller user's role level (ADMIN/USER)
+        required: true
+        type: string
+      - name: provider-client-id
+        in: query
+        description: target provider client id
+        required: true
+        type: string
+      - name: device-id
+        in: path
+        description: target device id
+        required: true
+        type: string
+      - name: channel-id
+        in: path
+        description: target device's channel id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/DeviceChannel"
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /devices/{device-id}/channels/{channel-id}/snapshot:
+    get:
+      tags:
+        - device
+      summary: Get particular device's snapshot by authorized user
+      description: Get particular device's snapshot by authorized user, ADMIN role level can list full devices
+      parameters:
+      - name: x-user-id
+        in: header
+        description: caller user id
+        required: true
+        type: string
+      - name: x-role-level
+        in: header
+        description: caller user's role level (ADMIN/USER)
+        required: true
+        type: string
+      - name: provider-client-id
+        in: query
+        description: target provider client id
+        required: true
+        type: string
+      - name: device-id
+        in: path
+        description: target device id
+        required: true
+        type: string
+      - name: channel-id
+        in: path
+        description: target device's channel id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/DeviceSnapshot"
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+
+  /devices/models:
+    get:
+      tags:
+        - device
+      summary: List supported Device Models for particular provider
+      description: List supported Device Models for particular provider
+      parameters:
+      - name: provider-client-id
+        in: query
+        description: target provider client id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/DeviceModel"
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /device-assign/devices:
+    get:
+      tags:
+        - device-assign
+      summary: Get full list of providers' devices
+      description: Get full list of providers' devices
+      parameters:
+      - name: provider-client-id
+        in: query
+        description: target provider client id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Device"
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /device-assign/devices/{device-id}:
+    get:
+      tags:
+        - device-assign
+      summary: Get particular provider's device
+      description: Get particular provider's device
+      parameters:
+      - name: provider-client-id
+        in: query
+        description: target provider client id
+        required: true
+        type: string
+      - name: device-id
+        in: path
+        description: target device id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/Device"
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /device-assign/devices/{device-id}/users:
+    get:
+      tags:
+        - device-assign
+      summary: List authorized users for the particular device
+      description: List authorized users for the particular device (Currently no provider-id supported)
+      parameters:
+      - name: device-id
+        in: path
+        description: target device id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: "array"
+            items:
+              type: string
+              example: user001
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /device-assign/users/{user-id}:
+    get:
+      tags:
+        - device-assign
+      summary: List authorized devices for particular user
+      description: List authorized devices for particular user
+      parameters:
+      - name: user-id
+        in: path
+        description: caller user id
+        required: true
+        type: string
+      - name: provider-client-id
+        in: query
+        description: target provider client id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/Device"
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+    put:
+      tags:
+        - device-assign
+      summary: Assign devices authorization for particular user
+      description: Assign devices authorization for particular user
+      parameters:
+      - name: user-id
+        in: path
+        description: caller user id
+        required: true
+        type: string
+      - name: body
+        in: body
+        description: device assignment list
+        required: true
+        schema:
+          $ref: "#/definitions/DeviceAssignment"
+      responses:
+        200:
+          description: OK
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+    delete:
+      tags:
+        - device-assign
+      summary: unassign all devices authorization for particular user
+      description: unassign all devices authorization for particular user
+      parameters:
+      - name: user-id
+        in: path
+        description: caller user id
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /stream-sessions/live:
+    get:
+      tags:
+        - stream
+      summary: Get particular device's live stream by authorized user
+      description: Get particular device's live stream by authorized user, ADMIN role level can list full devices
+      parameters:
+      - name: x-user-id
+        in: header
+        description: caller user id
+        required: true
+        type: string
+      - name: x-role-level
+        in: header
+        description: caller user's role level (ADMIN/USER)
+        required: true
+        type: string
+      - name: provider-client-id
+        in: query
+        description: target provider client id
+        required: true
+        type: string
+      - name: device-id
+        in: query
+        description: target device id
+        required: true
+        type: string
+      - name: channel-id
+        in: query
+        description: target device's channel id
+        required: true
+        type: string
+      - name: stream-type
+        in: query
+        description: streaming type. ("rtsp/h264", "http/jpeg", "http/mjpeg")
+        required: true
+        type: string
+      - name: ttl
+        in: query
+        description: streaming expiry time (seconds). default 300
+        required: false
+        type: integer
+      - name: allowed-ips
+        in: query
+        description: allowed IPs. default allowed all. format must be JSON Array with URL encoded
+        required: false
+        type: string
+      - name: options
+        in: query
+        description: additonal params. format must be JSON Object with URL encoded
+        required: false
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/StreamSession"
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /stream-sessions/playback:
+    get:
+      tags:
+        - stream
+      summary: Get particular device's playback stream by authorized user
+      description: Get particular device's playback stream by authorized user, ADMIN role level can list full devices
+      parameters:
+      - name: x-user-id
+        in: header
+        description: caller user id
+        required: true
+        type: string
+      - name: x-role-level
+        in: header
+        description: caller user's role level (ADMIN/USER)
+        required: true
+        type: string
+      - name: provider-client-id
+        in: query
+        description: target provider client id
+        required: true
+        type: string
+      - name: device-id
+        in: query
+        description: target device id
+        required: true
+        type: string
+      - name: channel-id
+        in: query
+        description: target device's channel id
+        required: true
+        type: string
+      - name: stream-type
+        in: query
+        description: streaming type. ("rtsp/h264", "http/jpeg", "http/mjpeg")
+        required: true
+        type: string
+      - name: from
+        in: query
+        description: begin xpiry time in epoch time
+        required: true
+        type: integer
+        format: int64
+      - name: to
+        in: query
+        description: end time in epoch time
+        required: true
+        type: integer
+        format: int64
+      - name: ttl
+        in: query
+        description: streaming expiry time (seconds). default 300
+        required: false
+        type: integer
+      - name: allowed-ips
+        in: query
+        description: allowed IPs. default allowed all. format must be JSON Array with URL encoded
+        required: false
+        type: string
+      - name: options
+        in: query
+        description: additonal params. format must be JSON Object with URL encoded
+        required: false
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/StreamSession"
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /stream-sessions/{session-key}/keepalive:
+    put:
+      tags:
+        - stream
+      summary: Keep alive particular stream by authorized user
+      description: Keep alive particular stream by authorized user, ADMIN role level can list access
+      parameters:
+      - name: x-user-id
+        in: header
+        description: caller user id
+        required: true
+        type: string
+      - name: x-role-level
+        in: header
+        description: caller user's role level (ADMIN/USER)
+        required: true
+        type: string
+      - name: session-key
+        in: path
+        description: target session key
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+          schema:
+            type: integer
+            format: int64
+            description: new expiry time in epoch time
+            example: 1531886164000
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /stream-sessions/{session-key}/expire:
+    put:
+      tags:
+        - stream
+      summary: Kill particular stream by authorized user
+      description: Kill particular stream by authorized user, ADMIN role level can list access
+      parameters:
+      - name: x-user-id
+        in: header
+        description: caller user id
+        required: true
+        type: string
+      - name: x-role-level
+        in: header
+        description: caller user's role level (ADMIN/USER)
+        required: true
+        type: string
+      - name: session-key
+        in: path
+        description: target session key
+        required: true
+        type: string
+      responses:
+        200:
+          description: OK
+        400:
+          description: Missing Input
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+
+definitions:
+  Provider:
+    type: object
+    required:
+    - id
+    - providerName
+    - type
+    - status
+    properties:
+      id:
+        type: string
+        description: provider client id
+        example: ncs.vit.vms-0
+      providerName:
+        type: string
+        description: provider name
+        example: ncs.vit.vms
+      type:
+        type: string
+        description: provider type (ANALYTICS, SOURCE)
+        example: SOURCE
+      version:
+        description: provider versions
+        type: object
+        additionalProperties:
+          type: string
+        example:
+          ver: 1.0.0
+      metadata:
+        description: additional metadata
+        type: object
+        additionalProperties:
+          type: string
+        example:
+          field1: value1
+          field2: value2
+      status:
+        description: status information
+        $ref: '#/definitions/Status'
+
+  Device:
+    type: object
+    required:
+    - id
+    - providerClientId
+    - name
+    - modelId
+    - uri
+    - channels
+    - status
+    properties:
+      id:
+        type: string
+        description: device id
+        example: 1
+      providerClientId:
+        type: string
+        description: provider client id
+        example: ncs.vit.vms-0
+      name:
+        type: string
+        description: name of the device
+        example: Mileslight001
+      modelId:
+        type: string
+        description: model device id (refer /models API)
+        example: milesight-ipc
+      deviceKey:
+        type: string
+        description: device key
+        example: dk01
+      uri:
+        type: string
+        description: stream uri of the camera
+        example: tcp://10.10.2.222:80
+      username:
+        type: string
+        description: login username of device
+        example: admin
+      metadata:
+        description: additional metadata
+        type: object
+        additionalProperties:
+          type: string
+        example:
+          field1: value1
+          field2: value2
+      channels:
+        type: "array"
+        items:
+          $ref: "#/definitions/DeviceChannel"
+      status:
+        description: status information
+        $ref: '#/definitions/Status'
+
+  DeviceOperation:
+    type: object
+    required:
+    - providerClientId
+    - name
+    - modelId
+    - uri
+    properties:
+      providerClientId:
+        type: string
+        description: provider client id
+        example: ncs.vit.vms-0
+      name:
+        type: string
+        description: name of the device
+        example: Mileslight001
+      modelId:
+        type: string
+        description: model device id (refer /models API)
+        example: milesight-ipc
+      deviceKey:
+        type: string
+        description: device key
+        example: dk01
+      uri:
+        type: string
+        description: stream uri of the camera
+        example: tcp://10.10.2.222:80
+      username:
+        type: string
+        description: login username of device
+        example: admin
+      password:
+        type: string
+        description: login password of device
+        example: admin123456
+      metadata:
+        description: additional metadata
+        type: object
+        additionalProperties:
+          type: string
+        example:
+          field1: value1
+          field2: value2
+
+  Status:
+    type: object
+    required:
+      - name
+    properties:
+      name:
+        type: string
+        description: status name (OK, CONNECTING, WAITING)
+        example: CONNECTING
+      message:
+        type: string
+        description: error message
+        example: unknown-status
+
+  DeviceChannel:
+    type: object
+    required:
+      - id
+      - status
+      - metadata
+    properties:
+      id:
+        type: string
+        description: device channel id
+        example: 5b3c4a87e4b0d2ead7129b96
+      status:
+        description: status information
+        $ref: '#/definitions/Status'
+      metadata:
+        description: additional metadata
+        type: object
+        additionalProperties:
+          type: string
+        example:
+          field1: value1
+          field2: value2
+
+  DeviceSnapshot:
+    type: object
+    required:
+      - deviceId
+      - channelId
+      - format
+      - base64Image
+      - time
+    properties:
+      deviceId:
+        type: string
+        description: device id
+        example: 01
+      channelId:
+        type: string
+        description: device channel id
+        example: 5b3c4a87e4b0d2ead7129b96
+      format:
+        type: string
+        description: snapshot format
+        example: JPEG
+      base64Image:
+        type: string
+        description: encoded base 64 image string
+        example: 3459gfjh784-3k856==
+      time:
+        type: integer
+        format: int64
+        description: snapshot capture time (seconds since epoch)
+        example: 1531735239000
+
+  DeviceModel:
+    type: object
+    required:
+      - id
+      - name
+    properties:
+      id:
+        type: string
+        description: device model id
+        example: milesight-ipc
+      name:
+        type: string
+        description: name of the model
+        example: milesight
+      metadata:
+        description: additional metadata
+        type: object
+        additionalProperties:
+          type: string
+        example:
+          field1: value1
+          field2: value2
+
+  DeviceAssignment:
+    type: object
+    required:
+      - providerClientId
+      - deviceId
+    properties:
+      id:
+        type: string
+        description: provider client id
+        example: ncs.vit.vms
+      name:
+        type: string
+        description: device id for that device
+        example: 01
+
+  StreamSession:
+    type: object
+    required:
+      - sessionKey
+      - expiry
+      - urls
+    properties:
+      sessionKey:
+        type: string
+        description: stream session key
+        example: d7f9-s62n4-v7fk2
+      expiry:
+        type: integer
+        format: int64
+        description: expiry time in epoch time
+        example: 1531886164000
+      urls:
+        type: "array"
+        items:
+          type: string
+          example: rtsp://10.10.2.33:80/live
+
+  ApiError:
+    type: object
+    required:
+      - key
+      - statusCode
+      - serviceName
+      - message
+      - time
+    properties:
+      key:
+        type: string
+        description: error key
+      statusCode:
+        type: integer
+        description: HTTP status code
+      serviceName:
+        type: string
+        description: original service name
+      message:
+        type: string
+        description: error message
+      time:
+        type: integer
+        format: int64
+        description: error time (seconds since epoch)

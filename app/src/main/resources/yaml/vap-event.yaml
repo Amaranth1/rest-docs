@@ -1,0 +1,337 @@
+swagger: "2.0"
+
+info:
+  description: API References for VAP Event Service
+  version: 1.0.0
+  title: VAP Event Service API References
+
+host: "localhost:25060"
+
+basePath: "/"
+
+schemes:
+- http
+
+tags:
+- name: events
+  description: Event APIs
+- name: handlers
+  description: Handler APIs
+- name: reports
+  description: Report APIs
+- name: service
+  description: Service APIs
+
+paths:
+  /handlers:
+    get:
+      tags:
+      - handlers
+      summary: Get supported event handlers
+      produces:
+      - application/json
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Handler"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /events:
+    get:
+      tags:
+      - events
+      summary: Get events
+      produces:
+      - application/json
+      parameters:
+      - name: type
+        in: query
+        description: event type
+        type: string
+      - name: sourceid
+        in: query
+        description: event source id
+        type: string
+      - name: timefr
+        in: query
+        description: start time (milliseconds since Unix Epoch)
+        type: integer
+        format: int64
+        required: true
+      - name: timeto
+        in: query
+        description: end time (milliseconds since Unix Epoch)
+        type: integer
+        format: int64
+        required: true
+      - name: pindex
+        in: query
+        description: page index (zero-based)
+        type: integer
+        required: true
+      - name: psize
+        in: query
+        description: page size
+        type: integer
+        required: true
+      - name: sort
+        in: query
+        description: page sort order
+        type: string
+        enum: [asc, desc]
+        required: true
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Event"
+        400:
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /events/{id}:
+    get:
+      tags:
+      - events
+      summary: Get event by id
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        in: path
+        description: event id
+        type: string
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: "#/definitions/Event"
+        404:
+          description: Not Found
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /reports:
+    get:
+      tags:
+      - reports
+      summary: Get reports
+      produces:
+      - application/json
+      parameters:
+      - name: type
+        in: query
+        description: event type
+        type: string
+        required: true
+      - name: sourceid
+        in: query
+        description: event source id
+        type: string
+      - name: timefr
+        in: query
+        description: start time (milliseconds since Unix Epoch)
+        type: integer
+        format: int64
+        required: true
+      - name: timeto
+        in: query
+        description: end time (milliseconds since Unix Epoch)
+        type: integer
+        format: int64
+        required: true
+      - name: timeunit
+        in: query
+        description: time unit
+        type: string
+        enum: [hourly, daily]
+        required: true
+      - name: pindex
+        in: query
+        description: page index (zero-based)
+        type: integer
+        required: true
+      - name: psize
+        in: query
+        description: page size
+        type: integer
+        required: true
+      - name: sort
+        in: query
+        description: page sort order
+        type: string
+        enum: [asc, desc]
+        required: true
+      responses:
+        200:
+          description: success
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Report"
+        400:
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /info:
+    get:
+      tags:
+      - service
+      summary: Get service information
+      produces:
+      - application/json
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: "#/definitions/ServiceInfo"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+definitions:
+  ServiceInfo:
+    type: object
+    properties:
+      name:
+        type: string
+        description: service name
+        readOnly: true
+      version:
+        type: string
+        description: service version
+        readOnly: true
+
+  Event:
+    type: object
+    properties:
+      id:
+        type: string
+        description: event id
+        readOnly: true
+      sourceId:
+        type: string
+        description: event source id
+        readOnly: true
+      time:
+        type: integer
+        format: int64
+        description: event time (milliseconds since Unix Epoch)
+        readOnly: true
+      type:
+        type: string
+        description: event type
+        readOnly: true
+      jsonData:
+        type: string
+        description: event JSON data
+        readOnly: true
+      binaryData:
+        type: string
+        format: byte
+        description: event Base64-encoded binary data
+        readOnly: true
+      metaData:
+        type: object
+        description: additional key-value properties
+        additionalProperties:
+          type: string
+        example:
+          field1: value1
+          field2: value2
+        readOnly: true
+        
+  Handler:
+    type: object
+    properties:
+      name:
+        type: string
+        description: handler name
+        readOnly: true
+      type:
+        type: string
+        description: event type
+        readOnly: true
+      collectionMaxSize:
+        type: integer
+        format: int64
+        description: database collection max size (in bytes)
+        readOnly: true
+      notified:
+        type: boolean
+        description: indicates whether events handled by this handler will be queued for notification
+        readOnly: true
+      enabled:
+        type: boolean
+        description: indicates whether the handler is enabled
+        readOnly: true
+          
+  Report:
+    type: object
+    properties:
+      data:
+        type: object
+        description: report data defined by handler plugin
+        additionalProperties:
+          type: object
+        example:
+          field1: 4
+          field2: value2
+        readOnly: true
+      sourceId:
+        type: string
+        description: source id
+        readOnly: true
+      time:
+        type: integer
+        format: int64
+        description: report time (milliseconds since Unix Epoch)
+        readOnly: true
+
+  ApiError:
+    type: object
+    properties:
+      key:
+        type: string
+        description: error key
+        readOnly: true
+      statusCode:
+        type: integer
+        description: HTTP status code
+        readOnly: true
+      serviceName:
+        type: string
+        description: original service name
+        readOnly: true
+      message:
+        type: string
+        description: error message
+        readOnly: true
+      time:
+        type: integer
+        format: int64
+        description: error time (milliseconds since Unix Epoch)
+        readOnly: true

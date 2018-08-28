@@ -1,0 +1,895 @@
+swagger: "2.0"
+
+info:
+  title: "VAP Analytics Service APIs"
+  version: "1.0.0"
+  termsOfService: "https://www.ncs.com.sg/terms-conditions"
+
+tags:
+- name: "Service Info"
+  description: "Service Info APIs"
+- name: "Agents"
+  description: "Agent Info APIs"
+- name: "Provider Clients"
+  description: "Provider client info APIs"
+- name: "Labels"
+  description: "App label management"
+- name: "App Packages"
+  description: "Analytics app package management"
+- name: "Apps"
+  description: "Analytics app management"
+- name: "Instances"
+  description: "Analytics instance management"
+
+paths:
+  /info:
+    get:
+      tags:
+      - Service Info
+      summary: "Get service information"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ServiceInfo"
+
+  /agents:
+    get:
+      tags:
+      - Agents
+      summary: "Get all agents"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Agent"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /agents/{id}:
+    get:
+      tags:
+      - Agents
+      summary: "Get agent's information"
+      produces:
+      - "application/json"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Successful"
+          schema:
+              $ref: "#/definitions/Agent"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /agents/{id}/providerclients:
+    get:
+      tags:
+      - "Agents"
+      summary: "Get the list of providers supported by the target agent"
+      produces:
+      - "application/json"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+      responses:
+        200:
+          description: "Successful"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProviderClientInfo"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+
+  /providerclients:
+    get:
+      tags:
+      - Provider Clients
+      summary: "Get all providers"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ProviderClientInfo"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /providerclients/{id}:
+    get:
+      tags:
+      - Provider Clients
+      summary: "Get the provider by its client ID"
+      produces:
+      - "application/json"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        type: string
+        description: Provider Client ID
+      responses:
+        200:
+          description: "Successful"
+          schema:
+              $ref: "#/definitions/ProviderClientInfo"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+
+  /labels:
+    get:
+      tags:
+      - Labels
+      summary: "Get labels"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Label"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+    post:
+      tags:
+      - Labels
+      summary: "Add a new label"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        required: true
+        description: 'Label Object'
+        schema:
+          $ref: "#/definitions/Label"
+      responses:
+        200:
+          description: "Successful"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /labels/{name}:
+    put:
+      tags:
+      - Labels
+      summary: "Update a label"
+      produces:
+      - "application/json"
+      parameters:
+        - name: name
+          in: path
+          required: true
+          type: string
+          description: Current label's name
+        - name: body
+          in: body
+          required: true
+          description: 'Updated label'
+          schema:
+            $ref: "#/definitions/Label"
+      responses:
+        200:
+          description: "Successful"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+    delete:
+      tags:
+      - Labels
+      summary: "Deletes a label"
+      produces:
+      - "application/json"
+      parameters:
+        - name: name
+          in: path
+          required: true
+          type: string
+          description: Current label's name
+      responses:
+        200:
+          description: "Successful"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+
+  /packages:
+    get:
+      tags:
+      - App Packages
+      summary: "Query app packages"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/AppPackage"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /packages/{fileid}/download:
+    get:
+      tags:
+      - "App Packages"
+      summary: "Download the package by file id"
+      produces:
+      - application/octet-stream
+      parameters:
+      - name: fileid
+        in: path
+        type: string
+        required: true
+        description: package's file id
+      responses:
+        200:
+          description: "Successful"
+          schema:
+            type: file
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /packages/{fileid}:
+    delete:
+      tags:
+      - "App Packages"
+      summary: "Delete a package by file id"
+      produces:
+      - application/json
+      parameters:
+      - name: fileid
+        in: path
+        type: string
+        required: true
+        description: package's file id
+      responses:
+        200:
+          description: "Successful"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+
+  /apps:
+    get:
+      tags:
+      - Apps
+      summary: "Get apps"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Successful"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/AppFullInfo"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /apps/install:
+    post:
+      tags:
+      - Apps
+      summary: "Install an app by uploading the package"
+      consumes:
+      - multipart/form-data
+      produces:
+      - "application/json"
+      parameters:
+      - name: pcid
+        in: formData
+        type: string
+        description: "Provider client's ID"
+      - name: name
+        in: formData
+        type: string
+        description: "App's display name"
+      - name: description
+        in: formData
+        type: string
+        description: "Description"
+      - name: author
+        in: formData
+        type: string
+        description: "App's author"
+      - name: labels
+        in: formData
+        type: array
+        items:
+            type: string
+        description: "Label names assigned to this app. Label names must be valid"
+      - name: file
+        in: formData
+        type: file
+        description: "App package to upload"
+      responses:
+        200:
+          description: "Successful"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /apps/{id}/uninstall:
+    delete:
+      tags:
+      - Apps
+      summary: "Trigger app uninstallation"
+      produces:
+      - "application/json"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "App id"
+        type: string
+      responses:
+        200:
+          description: "Successful"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /apps/{id}/info:
+    put:
+      tags:
+      - Apps
+      summary: "Update app's custom info"
+      produces:
+      - "application/json"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "App id"
+        type: string
+      - name: body
+        in: body
+        required: true
+        description: 'Updated app info'
+        schema:
+          $ref: "#/definitions/AppCustomInfo"
+      responses:
+        200:
+          description: "Successful"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /apps/{id}/activation:
+    put:
+      tags:
+      - Apps
+      summary: "Change app's activation status"
+      produces:
+      - "application/json"
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: "App id"
+        type: string
+      - name: enabled
+        in: query
+        required: true
+        description: 'true for activation, false for deactivation'
+        type: boolean
+      responses:
+        200:
+          description: "Successful"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+
+  /instances:
+    get:
+      tags:
+      - Instances
+      summary: "List instances"
+      produces:
+      - "application/json"
+      parameters:
+      - name: type
+        in: query
+        required: false
+        description: "Filter by Instance type"
+        type: string
+        enum: [REAL_TIME, POST_PROCESSING, ON_DEMAND]
+      - name: appid
+        in: query
+        required: false
+        description: "Filter by App ID"
+        type: string
+      - name: status
+        in: query
+        required: false
+        description: "Filter by app's status"
+        type: string
+        enum: [WAITING, RUNNING, NOT_SCHEDULED, DISABLED, ERROR]
+      responses:
+        200:
+          description: "Successful"
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/Instance"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+    post:
+      tags:
+      - Instances
+      summary: "Create a new instance"
+      produces:
+      - "application/json"
+      parameters:
+      - name: body
+        in: body
+        required: true
+        description: 'New instance info'
+        schema:
+          $ref: "#/definitions/InstanceNew"
+      responses:
+        200:
+          description: "Successful"
+          schema:
+            type: string
+            description: "New instance's id"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /instances/{id}:
+    put:
+      tags:
+      - Instances
+      summary: "Update instances"
+      produces:
+      - "application/json"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+        - name: body
+          in: body
+          required: true
+          description: 'Updated settings'
+          schema:
+            $ref: "#/definitions/InstanceSettings"
+      responses:
+        200:
+          description: "Successful"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+    delete:
+      tags:
+      - Instances
+      summary: "Delete instances"
+      produces:
+      - "application/json"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          type: string
+      responses:
+        200:
+          description: "Successful"
+        400:
+          description: "Bad Request. Other error codes (4xx, 5xx) are not stated here, but will use the same format."
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+
+definitions:
+  ServiceInfo:
+    type: object
+    required:
+      - serviceName
+      - version
+    properties:
+      serviceName:
+        type: string
+      version:
+        type: string
+  ErrorApiResponse:
+    type: object
+    required:
+      - "key"
+      - "statusCode"
+      - "serviceName"
+      - "message"
+      - "time"
+    properties:
+      key:
+        type: "string"
+        description: "error message key"
+        example: "sample-error-key"
+      statusCode:
+        type: "integer"
+        format: "int32"
+        description: "HTTP Status"
+        example: "400"
+      serviceName:
+        type: "string"
+        description: "Name of the service where the error has happened"
+        example: "vap-analytics"
+      message:
+        type: "string"
+        example: "Sample error message"
+      time:
+        type: "integer"
+        format: "int64"
+        description: "unix time in milliseconds"
+        example: 1529464020000
+  Status:
+    type: "object"
+    required:
+      - "name"
+      - "message"
+    properties:
+      name:
+        type: "string"
+      message:
+        type: "string"
+  OptionDescriptor:
+    type: "object"
+    required:
+      - "name"
+      - "description"
+      - "required"
+    properties:
+      category:
+        type: string
+      name:
+        type: string
+      valueName:
+        type: string
+      description:
+        type: string
+      required:
+        type: string
+      defaultValue:
+        type: string
+  Parameter:
+    type: object
+    required:
+      - name
+    properties:
+      target:
+        type: string
+      name:
+        type: string
+      value:
+        type: string
+  SourceOptions:
+    type: object
+    description: "Source information"
+    required:
+      - providerClientId
+      - type
+      - request
+    properties:
+      providerClientId:
+        type: string
+      type:
+        type: string
+        enum: [VIDEO_STREAM, FILE]
+      request:
+        type: object
+        description: "Source provider-specific request details, hence no fixed format"
+  DayOfWeekPeriod:
+    type: object
+    required:
+      - dayOfWeek
+      - startMinutes
+      - endMinutes
+    properties:
+      dayOfWeek:
+        type: string
+        enum: [MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY]
+      startMinutes:
+        type: integer
+        format: int32
+        example: "540"
+      endMinutes:
+        type: integer
+        format: int32
+        example: "1080"
+  Schedule:
+    type: object
+    description: "Weekly operation schedule"
+    required:
+      - name
+      - timeZone
+      - weeklyPeriods
+    properties:
+      name:
+        type: string
+        description: "Display name"
+        example: "Monday 9 to 6"
+      timeZone:
+        type: string
+        description: "Time zone id"
+        example: "Asia/Singapore"
+      weeklyPeriods:
+        type: array
+        description: "List of recurring periods for each day of week"
+        items:
+          $ref: "#/definitions/DayOfWeekPeriod"
+  RunRequirement:
+    type: object
+    required:
+      - licenseRequired
+      - minMainMemory
+      - minGpuMemory
+    properties:
+      licenseRequired:
+        type: boolean
+        description: "Indicates whether a license is required to run analytics of this app"
+      minMainMemory:
+        type: integer
+        description: "Minimum main memory required in MB"
+      minGpuMemory:
+        type: integer
+        description: "Minimum GPU memory required in MB"
+  Agent:
+    type: object
+    required:
+      - id
+      - version
+    properties:
+      id:
+        type: string
+      version:
+        type: string
+  ProviderClientInfo:
+    type: object
+    required:
+      - agentId
+      - id
+      - providerId
+      - providerName
+      - type
+      - version
+      - status
+    properties:
+      agentId:
+        type: string
+      id:
+        type: string
+        description: "Provider's client ID"
+      providerId:
+        type: string
+        description: "Provider's unique id"
+        example: "ncs.vit.acv"
+      providerName:
+        type: string
+        description: "Provider display name"
+        example: "Default VA Gateway"
+      type:
+        type: string
+        enum: [ANALYTICS, SOURCE]
+      version:
+        type: object
+        description: "A map of versions applicable for this provider"
+        example:
+            svc1: "1.0.1"
+            svc2: "1.0.2"
+      metadata:
+        type: object
+        description: "Provider-specific information. No fixed format"
+      status:
+        $ref: "#/definitions/Status"
+  AppPackage:
+    type: "object"
+    required:
+      - providerClientId
+      - fileId
+      - filename
+      - length
+      - md5
+    properties:
+      providerClientId:
+        type: string
+        description: "Provider Client's ID"
+      fileId:
+        type: string
+      filename:
+        type: string
+      length:
+        type: integer
+        description: file length in bytes
+      md5:
+        type: string
+        description: "MD5 Hash"
+  AppFullInfo:
+    type: object
+    required:
+      - name
+      - description
+      - author
+#      - labels
+      - id
+      - providerClientId
+      - providerAppId
+      - providerAppName
+      - version
+      - availableOptions
+      - runRequirement
+#      - metadata
+      - status
+    properties:
+      name:
+        type: string
+        description: "App Name"
+      description:
+        type: string
+        description: "App Description"
+      author:
+        type: string
+        description: "App Author"
+      labels:
+        description: "Label names assigned to this app"
+        type: array
+        items:
+            type: string
+        example: ["Label-A", "Label-B"]
+      id:
+        type: string
+        description: "App id"
+      providerClientId:
+        type: string
+        description: "Provider's client id"
+      providerAppId:
+        type: string
+        description: "Provider's internal app id"
+      providerAppName:
+        type: string
+        description: "Provider's internal app name"
+      version:
+        type: string
+        example: "1.2.3"
+      availableOptions:
+        type: array
+        items:
+          $ref: "#/definitions/OptionDescriptor"
+      runRequirement:
+        $ref: "#/definitions/RunRequirement"
+        description: "Conditions to run this app"
+      metadata:
+        type: object
+        description: "App-specific information. No fixed format"
+      status:
+        $ref: "#/definitions/Status"
+  AppCustomInfo:
+    type: object
+    required:
+      - name
+      - description
+      - author
+#      - labels
+    properties:
+      name:
+        type: string
+        description: "App Name"
+      description:
+        type: string
+        description: "App Description"
+      author:
+        type: string
+        description: "App Author"
+      labels:
+        description: "Label names assigned to this app"
+        type: array
+        items:
+            type: string
+        example: ["Label-A", "Label-B"]
+  InstanceSettings:
+    type: "object"
+    required:
+      - parameters
+      - sourceOptions
+      - schedule
+      - enabled
+    properties:
+      parameters:
+        type: array
+        items:
+          $ref: "#/definitions/Parameter"
+      sourceOptions:
+        $ref: "#/definitions/SourceOptions"
+      schedule:
+        $ref: "#/definitions/Schedule"
+      enabled:
+        type: boolean
+        description: "Indicates whether this instance is activated or deactivated"
+  InstanceNew:
+    type: "object"
+    required:
+    - type
+    - appId
+    - settings
+    properties:
+      type:
+        type: string
+        enum: [REAL_TIME, POST_PROCESSING, ON_DEMAND]
+      appId:
+        type: string
+        description: "App id"
+      settings:
+        $ref: "#/definitions/InstanceSettings"
+  Instance:
+    type: "object"
+    required:
+      - type
+      - providerClientId
+      - appId
+    properties:
+      id:
+        type: string
+      type:
+        type: string
+        enum: [REAL_TIME, POST_PROCESSING, ON_DEMAND]
+      appId:
+        type: string
+        description: "App id"
+      settings:
+        $ref: "#/definitions/InstanceSettings"
+      status:
+        $ref: "#/definitions/Status"
+      lastUpdated:
+        type: integer
+        format: int64
+        description: "unix time in milliseconds"
+  Label:
+    type: object
+    required:
+      - name
+      - description
+    properties:
+      name:
+        type: string
+      description:
+        type: string

@@ -1,0 +1,246 @@
+swagger: "2.0"
+
+info:
+  description: API References for VAP Storage Service
+  version: 1.0.0
+  title: VAP Storage Service API References
+
+host: "localhost:25050"
+
+basePath: "/"
+
+schemes:
+- http
+
+tags:
+- name: file
+  description: File APIs
+- name: service
+  description: Service APIs
+
+paths:
+  /files:
+    get:
+      tags:
+      - file
+      summary: Get all files
+      consumes:
+      - application/json
+      responses:
+        200:
+          description: OK
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+    post:
+      tags:
+      - file
+      summary: Add new file
+      consumes:
+      - multipart/form-data
+      parameters:
+      - name: name
+        in: formData
+        type: string
+        description: file name
+      - name: blob
+        in: formData
+        type: file
+        description: binary file to upload
+        required: true
+      responses:
+        201:
+          description: Created
+        400:
+          description: Bad Request
+          schema:
+            $ref: "#/definitions/ApiError"
+        413:
+          description: Request Entity Too Large
+          schema:
+            $ref: "#/definitions/ApiError"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+    
+  /files/{id}:
+    get:
+      tags:
+      - file
+      summary: Get a file
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        in: path
+        description: file id
+        type: string
+        required: true
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: "#/definitions/MediaFile"
+        404:
+          description: Not Found
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+    put:
+      tags:
+      - file
+      summary: Update a file
+      consumes:
+      - application/json
+      parameters:
+      - name: id
+        in: path
+        description: file id
+        type: string
+        required: true
+      - name: body
+        in: body
+        description: new file model
+        required: true
+        schema:
+          $ref: "#/definitions/MediaFile"
+      responses:
+        204:
+          description: No Content
+        404:
+          description: Not Found
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+    delete:
+      tags:
+      - file
+      summary: Delete a file
+      parameters:
+      - name: id
+        in: path
+        description: file id
+        type: string
+        required: true
+      responses:
+        204:
+          description: No Content
+        404:
+          description: Not Found
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+  /files/{id}/blob:
+    get:
+      tags:
+      - file
+      summary: Get file binary content
+      produces:
+      - application/octet-stream
+      parameters:
+      - name: id
+        in: path
+        description: file id
+        type: string
+        required: true
+      responses:
+        200:
+          description: OK
+          schema:
+            type: file
+        404:
+          description: Not Found
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+  
+  /info:
+    get:    
+      tags:
+      - service
+      summary: Get service information
+      produces:
+      - application/json
+      responses:
+        200:
+          description: success
+          schema:
+            $ref: "#/definitions/ServiceInfo"
+        500:
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/ApiError"
+
+definitions:
+  ServiceInfo:
+    type: object
+    properties:
+      name:
+        type: string
+        description: service name
+        readOnly: true
+      version:
+        type: string
+        description: service version
+        readOnly: true
+        
+  MediaFile:
+    type: object
+    properties:
+      id:
+        type: string
+        description: file id
+        readOnly: true
+      name:
+        type: string
+        description: file name
+      length:
+        type: integer
+        format: int64
+        description: file size (bytes)
+        readOnly: true
+      type:
+        type: string
+        description: file type
+        readOnly: true
+      time:
+        type: integer
+        format: int64
+        description: file upload time (seconds since epoch)
+        readOnly: true
+      checksum:
+        type: string
+        description: media file MD5 checksum
+        readOnly: true
+
+  ApiError:
+    type: object
+    properties:
+      key:
+        type: string
+        description: error key
+        readOnly: true
+      statusCode:
+        type: integer
+        description: HTTP status code
+        readOnly: true
+      serviceName:
+        type: string
+        description: original service name
+        readOnly: true
+      message:
+        type: string
+        description: error message
+        readOnly: true
+      time:
+        type: integer
+        format: int64
+        description: error time (seconds since epoch)
+        readOnly: true

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="10">
+    <Properties>
+        <Property name="LOG_LEVEL">info</Property>
+        <Property name="patternLayout">%d{HH:mm:ss} %-5p [%C{0}:%L] ~ %m%n</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="consoleAppender">
+            <PatternLayout pattern="${patternLayout}" />
+        </Console>
+    </Appenders>
+
+    <Loggers>
+        <Root level="${env:LOG_LEVEL}">
+            <AppenderRef ref="consoleAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>

@@ -1,0 +1,130 @@
+<!-- HTML for static distribution bundle build -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>VAP API</title>
+    <link rel="stylesheet" type="text/css" href="../swagger-ui.css" />
+    <link rel="icon" type="image/png" href="../favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="../favicon-16x16.png" sizes="16x16" />
+    <script src="../swagger-ui-bundle.js"> </script>
+    <script src="../swagger-ui-standalone-preset.js"> </script>
+    <script src="../jquery.js"> </script>
+    <style>
+      html
+      {
+        box-sizing: border-box;
+        overflow: -moz-scrollbars-vertical;
+        overflow-y: scroll;
+      }
+
+      *,
+      *:before,
+      *:after
+      {
+        box-sizing: inherit;
+      }
+
+      body
+      {
+        margin:0;
+        background: #fafafa;
+      }
+      .self-download{
+        font-size: 16px;
+        font-weight: 700;
+        padding: 4px 30px;
+        border: none;
+        border-radius: 4px 4px 4px 4px;
+        background: #547f00;
+        font-family: sans-serif;
+        color: #fff;
+        cursor: pointer;
+        outline: none;
+        text-transform: none;
+        line-height: 2.0 !important;
+        margin: 0;
+      }
+
+      .self-download-label{
+         margin-left:auto !important;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="swagger-ui swagger-container">
+      <div class="scheme-container">
+        <section class="schemes wrapper block col-10">
+          <label>
+            <select id="modules"></select>
+          </label>
+          <label class="self-download-label">
+              <input id="download" type="button" class="self-download" value="Download pdf"/>
+          </label>
+        </section>
+      </div>
+    </div>
+
+    <form action="/apis/download" method="get" id="download-form">
+      <input type="hidden" name="module" id="module" value=""/>
+    </form>
+
+    <div id="swagger-ui"></div>
+    <script>
+    window.onload = function() {
+
+
+     $("#modules").change(function(){
+        var moduleName = $(this).val();
+        var btn = $(".download-url-button")[0];
+        window.ui.specActions.updateUrl("/apis/"+moduleName);
+        btn.click();
+     })
+
+     $("#download").click(function(){
+        var module = $("#modules").val();
+        var form = $("#download-form");
+        $("#module").val(module);
+        form.submit();
+     })
+      const ui = SwaggerUIBundle({
+        url: "",
+        dom_id: '#swagger-ui',
+        deepLinking: true,
+        presets: [
+          SwaggerUIBundle.presets.apis,
+          SwaggerUIStandalonePreset
+        ],
+        plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+        layout: "StandaloneLayout"
+      })
+
+      window.ui = ui
+
+      $.ajax({
+        url:"/apis/getAllModules",
+        type:"get",
+        dataType:"json",
+        async:true,
+        success:function(data){
+           if(data.length>0){
+              var btn = $(".download-url-button")[0];
+              window.ui.specActions.updateUrl("/apis/"+data[0]);
+              btn.click();
+           }
+           for(var a=0;a<data.length;a++){
+              $("#modules").append("<option value='"+data[a]+"'>"+data[a]+"</option>")
+           }
+
+        }
+      })
+    }
+
+
+  </script>
+  </body>
+</html>

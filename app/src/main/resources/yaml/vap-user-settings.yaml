@@ -1,0 +1,324 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "VAP User Settings Service API Interface"
+  termsOfService: "https://www.ncs.com.sg/terms-conditions"
+tags:
+- name: "Recipients"
+  description: "Recipients API"
+- name: "User Notification Settings"
+  description: "User Notification Settings API"
+- name: "User Notify Recipients"
+  description: "User Notify Recipients API"
+paths:
+  /recipients:
+    get:
+      tags:
+      - "Recipients"
+      summary: "Get user recipients"
+      produces:
+      - "application/json"
+      parameters:
+      - name: 'x-user-id'
+        in: 'header'
+        description: 'ID of the current session user'
+        required: true
+        type: 'string'
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/GetUserRecipientModel"
+    post:
+      tags:
+      - "Recipients"
+      summary: "Add user recipient"
+      produces:
+      - "application/json"
+      parameters:
+      - name: 'x-user-id'
+        in: 'header'
+        description: 'ID of the current session user'
+        required: true
+        type: 'string'
+      - name: 'body'
+        in: 'body'
+        description: 'Add user recipient object'
+        required: true
+        schema:
+          $ref: "#/definitions/AddUserRecipientModel"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "string"
+        400:
+          description: "Bad Request. Other 4xx errors are not shown"
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+        500:
+          description: "Internal Error. Other 5xx errors are not shown"
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /recipients/{recipient-id}:
+    put:
+      tags:
+      - "Recipients"
+      summary: "Update user recipient"
+      produces:
+      - "application/json"
+      parameters:
+      - name: 'x-user-id'
+        in: 'header'
+        description: 'ID of the current session user'
+        required: true
+        type: 'string'
+      - name: "recipient-id"
+        in: "path"
+        description: "ID of recipient that needs to be fetched"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Updated user recipient object"
+        required: true
+        schema:
+          $ref: "#/definitions/UpdateUserRecipientModel"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "Bad Request. Other 4xx errors are not shown"
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+        500:
+          description: "Internal Error. Other 5xx errors are not shown"
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+    delete:
+      tags:
+      - "Recipients"
+      summary: "Delete purchase user recipient by ID"
+      produces:
+      - "application/json"
+      parameters:
+      - name: 'x-user-id'
+        in: 'header'
+        description: 'ID of the current session user'
+        required: true
+        type: 'string'
+      - name: "recipient-id"
+        in: "path"
+        description: "ID of recipient that needs to be fetched"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "Bad Request. Other 4xx errors are not shown"
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+        500:
+          description: "Internal Error. Other 5xx errors are not shown"
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /notification:
+    get:
+      tags:
+      - "User Notification Settings"
+      summary: "Get user notification settings"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "x-user-id"
+        in: "header"
+        description: "ID of the current session user"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/GetUserNotificationSettingsModel"
+    put:
+      tags:
+      - "User Notification Settings"
+      summary: "Update user notification settings"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "x-user-id"
+        in: "header"
+        description: "ID of the current session user"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Updated user settings object"
+        required: true
+        schema:
+          $ref: "#/definitions/UpdateUserNotificationSettingsModel"
+      responses:
+        200:
+          description: "successful operation"
+        400:
+          description: "Bad Request. Other 4xx errors are not shown"
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+        500:
+          description: "Internal Error. Other 5xx errors are not shown"
+          schema:
+            $ref: "#/definitions/ErrorApiResponse"
+  /notifiy/recipients:
+    get:
+      tags:
+      - "User Notify Recipients"
+      summary: "Get user notify recipients"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "user-id"
+        in: "query"
+        description: "ID of the user"
+        required: true
+        type: "string"
+      - name: "event-type"
+        in: "query"
+        description: "Type of of the event"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/GetUserNotifyRecipients"
+definitions:
+  GetUserRecipientModel:
+    type: "object"
+    required:
+      - "id"
+      - "type"
+      - "userId"
+      - "address"
+    properties:
+      id:
+        type: "string"
+      type:
+        type: "string"
+      userId:
+        type: "string"
+      address:
+        type: "string"
+  AddUserRecipientModel:
+    type: "object"
+    required:
+      - "type"
+      - "userId"
+      - "address"
+    properties:
+      type:
+        type: "string"
+      userId:
+        type: "string"
+      address:
+        type: "string"
+  UpdateUserRecipientModel:
+    type: "object"
+    required:
+      - "id"
+      - "userId"
+      - "address"
+      - "type"
+    properties:
+      id:
+        type: "string"
+      userId:
+        type: "string"
+      address:
+        type: "string"
+      type:
+        type: "string"
+  GetUserNotificationSettingsModel:
+    type: "object"
+    required:
+      - "id"
+      - "eventRecipientSettings"
+      - "userId"
+    properties:
+      id:
+        type: "string"
+      eventRecipientSettings:
+        type: "array"
+        items:
+          $ref: "#/definitions/EventRecipientSetting"
+      userId:
+        type: "string"
+  UpdateUserNotificationSettingsModel:
+    type: "object"
+    required:
+      - "userId"
+      - "eventRecipientSettings"
+    properties:
+      userId:
+        type: "string"
+      eventRecipientSettings:
+        type: "array"
+        items:
+          $ref: "#/definitions/EventRecipientSetting"
+  EventRecipientSetting:
+    type: "object"
+    required:
+      - "eventType"
+      - "recipientTypes"
+    properties:
+      eventType:
+        type: "string"
+      recipientTypes:
+        type: "object"
+        additionalProperties:
+          type: "boolean"
+        example:
+          "SMS": true
+          "EMAIL": true
+  GetUserNotifyRecipients:
+    type: "object"
+    required:
+      - "id"
+      - "userId"
+      - "address"
+      - "type"
+    properties:
+      id:
+        type: "string"
+      userId:
+        type: "string"
+      address:
+        type: "string"
+      type:
+        type: "string"
+  ErrorApiResponse:
+    type: "object"
+    required:
+      - "key"
+      - "statusCode"
+      - "serviceName"
+      - "message"
+      - "time"
+    properties:
+      key:
+        type: "string"
+      statusCode:
+        type: "integer"
+        format: "int32"
+      serviceName:
+        type: "string"
+      message:
+        type: "string"
+      time:
+        type: "integer"
+        format: "int64"
